@@ -37,8 +37,8 @@ class MapWidgetState extends State<MapWidget> {
 
   @override
   void dispose() {
-    _initialLocationSubscription!.cancel();
-    _locationSubscription!.cancel();
+    _initialLocationSubscription?.cancel();
+    _locationSubscription?.cancel();
     super.dispose();
   }
 
