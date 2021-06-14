@@ -1,0 +1,14 @@
+{
+  "maps": "Mapas",
+  "places": "Lugares",
+  "lat": "Latitud",
+  "lng": "Longitud",
+  "save": "Guardar",
+  "cancel": "Cancelar",
+  "markerName": "Nombre del marcador",
+  "errorEmptyName": "Por favor, introduce un nombre",
+  "errorEmptyLat": "Por favor, introduce una latitud",
+  "errorEmptyLng": "Por favor, introduce una longitud",
+  "errorValidLat": "Por favor, introduce una latitud válida",
+  "errorValidLng": "Por favor, introduce una longitud válida"
+}

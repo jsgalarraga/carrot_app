@@ -1,6 +1,7 @@
 import 'package:carrot_app/pages/maps_page.dart';
 import 'package:carrot_app/pages/places_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key? key, required this.title}) : super(key: key);
@@ -34,14 +35,14 @@ class _MyHomePageState extends State<MyHomePage> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onNavBarItemTap,
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.map_outlined),
-            label: '__Maps',
+            label: AppLocalizations.of(context)!.maps,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.place_outlined),
-            label: '__Places',
+            label: AppLocalizations.of(context)!.places,
           ),
         ],
       ),

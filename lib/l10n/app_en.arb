@@ -1,0 +1,14 @@
+{
+  "maps": "Maps",
+  "places": "Places",
+  "lat": "Latitude",
+  "lng": "Longitude",
+  "save": "Save",
+  "cancel": "Cancel",
+  "markerName": "Marker name",
+  "errorEmptyName": "Please, enter a marker name",
+  "errorEmptyLat": "Please, enter a latitude",
+  "errorEmptyLng": "Please, enter a longitude",
+  "errorValidLat": "Please, enter a valid latitude",
+  "errorValidLng": "Please, enter a valid longitude"
+}
