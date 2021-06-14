@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
@@ -45,20 +46,41 @@ class MapWidgetState extends State<MapWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GoogleMap(
-        mapType: MapType.normal,
-        initialCameraPosition: CameraPosition(
-          target: _initialLatLng,
-          zoom: 14,
-        ),
-        onMapCreated: _onMapCreated,
-        myLocationEnabled: true,
-        myLocationButtonEnabled: true,
-      ),
+      body: StreamBuilder(
+          stream: FirebaseFirestore.instance.collection('/markers').orderBy('name').snapshots(),
+          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            try {
+              if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+              return GoogleMap(
+                mapType: MapType.normal,
+                initialCameraPosition: CameraPosition(
+                  target: _initialLatLng,
+                  zoom: 14,
+                ),
+                onMapCreated: _onMapCreated,
+                myLocationEnabled: true,
+                myLocationButtonEnabled: true,
+                markers: Set.from(
+                  snapshot.data!.docs.map(
+                    (item) => Marker(markerId: MarkerId(item.id), position: LatLng(item['lat'], item['lng'])),
+                  ),
+                ),
+              );
+            } catch (e) {
+              return Center(
+                child: ListTile(
+                  title: Text(
+                    'Se ha producido un error. Comprueba tu conexión y vuelve a intentarlo',
+                    style: TextStyle(color: Colors.grey.shade700),
+                  ),
+                ),
+              );
+            }
+          }),
     );
   }
 
-  getLocation() async{
+  getLocation() async {
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
 
@@ -79,11 +101,11 @@ class MapWidgetState extends State<MapWidget> {
     }
 
     _currentPosition = await location.getLocation();
-    _initialLatLng = LatLng(_currentPosition!.latitude!,_currentPosition!.longitude!);
+    _initialLatLng = LatLng(_currentPosition!.latitude!, _currentPosition!.longitude!);
     _locationSubscription = location.onLocationChanged.listen((LocationData currentLocation) {
       setState(() {
         _currentPosition = currentLocation;
-        _initialLatLng = LatLng(_currentPosition!.latitude!,_currentPosition!.longitude!);
+        _initialLatLng = LatLng(_currentPosition!.latitude!, _currentPosition!.longitude!);
       });
     });
   }
@@ -101,5 +123,4 @@ class MapWidgetState extends State<MapWidget> {
     });
     _controller.complete(controller);
   }
-
 }
