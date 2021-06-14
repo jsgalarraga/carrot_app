@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "159520185414",
+    "project_id": "carrot-app-316809",
+    "storage_bucket": "carrot-app-316809.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:159520185414:android:d468dc96406df94a603e47",
+        "android_client_info": {
+          "package_name": "com.jsgalarraga.carrot_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "159520185414-rvhlo7njqfspssalfn6umb2ict86vt01.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3ywH0XFj29_f82fZ5a5yt1qL7MR9RvPc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "159520185414-rvhlo7njqfspssalfn6umb2ict86vt01.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
