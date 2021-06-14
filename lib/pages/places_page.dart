@@ -19,7 +19,13 @@ class PlacesPage extends StatelessWidget {
                   title: Text(snapshot.data?.docs[index]['name']),
                   subtitle: Text(
                     '${AppLocalizations.of(context)!.lat}: ${snapshot.data?.docs[index]['lat']} -'
-                        ' ${AppLocalizations.of(context)!.lng}: ${snapshot.data?.docs[index]['lng']}',
+                    ' ${AppLocalizations.of(context)!.lng}: ${snapshot.data?.docs[index]['lng']}',
+                  ),
+                  trailing: IconButton(
+                    icon: Icon(Icons.delete_outline),
+                    onPressed: () {
+                      FirebaseFirestore.instance.collection('/markers').doc(snapshot.data?.docs[index].id).delete();
+                    },
                   ),
                 ),
               );
@@ -71,7 +77,7 @@ class _AddPlaceDialogState extends State<AddPlaceDialog> {
               keyboardType: TextInputType.text,
               textCapitalization: TextCapitalization.sentences,
               decoration: InputDecoration(labelText: AppLocalizations.of(context)!.markerName),
-              validator: (value){
+              validator: (value) {
                 if (value!.isEmpty) return AppLocalizations.of(context)!.errorEmptyName;
               },
             ),
@@ -79,20 +85,18 @@ class _AddPlaceDialogState extends State<AddPlaceDialog> {
               controller: _latController,
               decoration: InputDecoration(labelText: AppLocalizations.of(context)!.lat, hintText: '12.345'),
               keyboardType: TextInputType.number,
-              validator: (value){
+              validator: (value) {
                 if (value!.isEmpty) return AppLocalizations.of(context)!.errorEmptyLat;
-                if (double.tryParse(value) == null)
-                  return AppLocalizations.of(context)!.errorValidLat;
+                if (double.tryParse(value) == null) return AppLocalizations.of(context)!.errorValidLat;
               },
             ),
             TextFormField(
               controller: _lngController,
               decoration: InputDecoration(labelText: AppLocalizations.of(context)!.lng, hintText: '12.345'),
               keyboardType: TextInputType.number,
-              validator: (value){
+              validator: (value) {
                 if (value!.isEmpty) return AppLocalizations.of(context)!.errorEmptyLng;
-                if (double.tryParse(value) == null)
-                  return AppLocalizations.of(context)!.errorValidLng;
+                if (double.tryParse(value) == null) return AppLocalizations.of(context)!.errorValidLng;
               },
             ),
           ],
@@ -108,7 +112,7 @@ class _AddPlaceDialogState extends State<AddPlaceDialog> {
         TextButton(
           child: Text(AppLocalizations.of(context)!.save),
           onPressed: () {
-            if (_formKey.currentState!.validate()){
+            if (_formKey.currentState!.validate()) {
               _addMarker();
               Navigator.of(context).pop();
             }
@@ -118,7 +122,7 @@ class _AddPlaceDialogState extends State<AddPlaceDialog> {
     );
   }
 
-  void _addMarker(){
+  void _addMarker() {
     CollectionReference markers = FirebaseFirestore.instance.collection('markers');
     markers.add({
       'name': _nameController.text,
