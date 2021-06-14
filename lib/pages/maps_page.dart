@@ -26,11 +26,20 @@ class MapWidgetState extends State<MapWidget> {
   LocationData? _currentPosition;
   LatLng _initialLatLng = LatLng(41.375969168654926, 2.186781542297567);
   bool _firstLocation = true;
+  StreamSubscription<LocationData>? _initialLocationSubscription;
+  StreamSubscription<LocationData>? _locationSubscription;
 
   @override
   void initState() {
     super.initState();
     getLocation();
+  }
+
+  @override
+  void dispose() {
+    _initialLocationSubscription!.cancel();
+    _locationSubscription!.cancel();
+    super.dispose();
   }
 
   @override
@@ -71,7 +80,7 @@ class MapWidgetState extends State<MapWidget> {
 
     _currentPosition = await location.getLocation();
     _initialLatLng = LatLng(_currentPosition!.latitude!,_currentPosition!.longitude!);
-    location.onLocationChanged.listen((LocationData currentLocation) {
+    _locationSubscription = location.onLocationChanged.listen((LocationData currentLocation) {
       setState(() {
         _currentPosition = currentLocation;
         _initialLatLng = LatLng(_currentPosition!.latitude!,_currentPosition!.longitude!);
@@ -80,7 +89,7 @@ class MapWidgetState extends State<MapWidget> {
   }
 
   void _onMapCreated(GoogleMapController controller) {
-    location.onLocationChanged.listen((l) {
+    _initialLocationSubscription = location.onLocationChanged.listen((l) {
       if (_firstLocation) {
         _firstLocation = false;
         controller.animateCamera(
