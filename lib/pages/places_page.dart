@@ -60,7 +60,7 @@ class _AddPlaceDialogState extends State<AddPlaceDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text("Add new marker"),
+      title: Text(AppLocalizations.of(context)!.addMarker),
       content: Form(
         key: _formKey,
         child: Column(

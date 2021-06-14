@@ -5,6 +5,7 @@
   "lng": "Longitud",
   "save": "Guardar",
   "cancel": "Cancelar",
+  "addMarker": "Añadir marcador",
   "markerName": "Nombre del marcador",
   "errorEmptyName": "Por favor, introduce un nombre",
   "errorEmptyLat": "Por favor, introduce una latitud",
