@@ -88,6 +88,8 @@ class _AddPlaceDialogState extends State<AddPlaceDialog> {
               validator: (value) {
                 if (value!.isEmpty) return AppLocalizations.of(context)!.errorEmptyLat;
                 if (double.tryParse(value) == null) return AppLocalizations.of(context)!.errorValidLat;
+                if (!((double.parse(value) >= -90) && (double.parse(value) <= 90)))
+                  return AppLocalizations.of(context)!.errorValidLat;
               },
             ),
             TextFormField(
@@ -97,6 +99,8 @@ class _AddPlaceDialogState extends State<AddPlaceDialog> {
               validator: (value) {
                 if (value!.isEmpty) return AppLocalizations.of(context)!.errorEmptyLng;
                 if (double.tryParse(value) == null) return AppLocalizations.of(context)!.errorValidLng;
+                if (!((double.parse(value) >= -180) && (double.parse(value) <= 180)))
+                  return AppLocalizations.of(context)!.errorValidLng;
               },
             ),
           ],
