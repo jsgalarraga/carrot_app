@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MyHomePage extends StatefulWidget {
+  /// Sets the page to the one selected by the BottomNavigationBar
   MyHomePage({Key? key, required this.title}) : super(key: key);
 
+  /// The title of the AppBar
   final String title;
 
   @override
@@ -14,11 +16,14 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
+
+  /// The list of possible pages to show
   List<Widget> _pages = <Widget>[
     MapsPage(),
-    PlacesPage()
+    PlacesPage(),
   ];
 
+  /// Sets the page to be displayed
   void _onNavBarItemTap(int index) {
     setState(() {
       _selectedIndex = index;

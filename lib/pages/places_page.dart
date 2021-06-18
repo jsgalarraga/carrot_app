@@ -3,7 +3,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PlacesPage extends StatelessWidget {
+  /// Page that displays a list with created markers and allows to create new markers to show on MapsPage
   const PlacesPage({Key? key}) : super(key: key);
+
+  void _addNewMarker(BuildContext context) {
+    showDialog(context: context, builder: (BuildContext context) => AddPlaceDialog());
+  }
+
+  void _deleteMarker(String? markerId) {
+    FirebaseFirestore.instance.collection('/markers').doc(markerId).delete();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,9 +32,7 @@ class PlacesPage extends StatelessWidget {
                   ),
                   trailing: IconButton(
                     icon: Icon(Icons.delete_outline),
-                    onPressed: () {
-                      FirebaseFirestore.instance.collection('/markers').doc(snapshot.data?.docs[index].id).delete();
-                    },
+                    onPressed: () => _deleteMarker(snapshot.data?.docs[index].id),
                   ),
                 ),
               );
@@ -42,9 +49,7 @@ class PlacesPage extends StatelessWidget {
           }),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: () {
-          showDialog(context: context, builder: (BuildContext context) => AddPlaceDialog());
-        },
+        onPressed: () => _addNewMarker(context),
       ),
     );
   }
@@ -63,6 +68,58 @@ class _AddPlaceDialogState extends State<AddPlaceDialog> {
   final _lngController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+  String? _nameFieldValidator(String? value) {
+    /// Validates the name of the marker
+    if (value!.isEmpty) return AppLocalizations.of(context)!.errorEmptyName;
+  }
+
+  String? _latFieldValidator(String? value) {
+    /// Validates the latitude of the marker's location
+    // Checks if it's empty
+    if (value!.isEmpty) return AppLocalizations.of(context)!.errorEmptyLat;
+    //Checks if it's a number
+    if (double.tryParse(value) == null) return AppLocalizations.of(context)!.errorValidLat;
+    //Checks if its a valid latitude between -90 and 90 degrees
+    if (!((double.parse(value) >= -90) && (double.parse(value) <= 90)))
+      return AppLocalizations.of(context)!.errorValidLat;
+  }
+
+  String? _lngFieldValidator(String? value) {
+    /// Validates the longitude of the marker's location
+    // Checks if it's empty
+    if (value!.isEmpty) return AppLocalizations.of(context)!.errorEmptyLng;
+    //Checks if it's a number
+    if (double.tryParse(value) == null) return AppLocalizations.of(context)!.errorValidLng;
+    //Checks if its a valid latitude between -180 and 180 degrees
+    if (!((double.parse(value) >= -180) && (double.parse(value) <= 180)))
+      return AppLocalizations.of(context)!.errorValidLng;
+  }
+
+  void _cancelNewMarker() {
+    /// Dismisses the new marker dialog
+    Navigator.of(context).pop();
+  }
+
+  void _confirmNewMarker() {
+    /// Creates the new marker and dismisses de dialog
+    if (_formKey.currentState!.validate()) {
+      _addMarker();
+      Navigator.of(context).pop();
+    }
+  }
+
+  void _addMarker() {
+    /// Creates the marker in the database
+    CollectionReference markers = FirebaseFirestore.instance.collection('markers');
+    markers.add({
+      'name': _nameController.text,
+      'lat': double.parse(_latController.text),
+      'lng': double.parse(_lngController.text),
+    }).catchError((error) {
+      print("Failed to add marker: $error");
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -77,31 +134,19 @@ class _AddPlaceDialogState extends State<AddPlaceDialog> {
               keyboardType: TextInputType.text,
               textCapitalization: TextCapitalization.sentences,
               decoration: InputDecoration(labelText: AppLocalizations.of(context)!.markerName),
-              validator: (value) {
-                if (value!.isEmpty) return AppLocalizations.of(context)!.errorEmptyName;
-              },
+              validator: _nameFieldValidator,
             ),
             TextFormField(
               controller: _latController,
               decoration: InputDecoration(labelText: AppLocalizations.of(context)!.lat, hintText: '12.345'),
               keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value!.isEmpty) return AppLocalizations.of(context)!.errorEmptyLat;
-                if (double.tryParse(value) == null) return AppLocalizations.of(context)!.errorValidLat;
-                if (!((double.parse(value) >= -90) && (double.parse(value) <= 90)))
-                  return AppLocalizations.of(context)!.errorValidLat;
-              },
+              validator: _latFieldValidator,
             ),
             TextFormField(
               controller: _lngController,
               decoration: InputDecoration(labelText: AppLocalizations.of(context)!.lng, hintText: '12.345'),
               keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value!.isEmpty) return AppLocalizations.of(context)!.errorEmptyLng;
-                if (double.tryParse(value) == null) return AppLocalizations.of(context)!.errorValidLng;
-                if (!((double.parse(value) >= -180) && (double.parse(value) <= 180)))
-                  return AppLocalizations.of(context)!.errorValidLng;
-              },
+              validator: _lngFieldValidator,
             ),
           ],
         ),
@@ -109,31 +154,13 @@ class _AddPlaceDialogState extends State<AddPlaceDialog> {
       actions: [
         TextButton(
           child: Text(AppLocalizations.of(context)!.cancel),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+          onPressed: () => _cancelNewMarker(),
         ),
         TextButton(
           child: Text(AppLocalizations.of(context)!.save),
-          onPressed: () {
-            if (_formKey.currentState!.validate()) {
-              _addMarker();
-              Navigator.of(context).pop();
-            }
-          },
+          onPressed: () => _confirmNewMarker(),
         ),
       ],
     );
-  }
-
-  void _addMarker() {
-    CollectionReference markers = FirebaseFirestore.instance.collection('markers');
-    markers.add({
-      'name': _nameController.text,
-      'lat': double.parse(_latController.text),
-      'lng': double.parse(_lngController.text),
-    }).catchError((error) {
-      print("Failed to add marker: $error");
-    });
   }
 }

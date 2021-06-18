@@ -7,6 +7,7 @@ import 'package:location/location.dart';
 import 'package:weather/weather.dart';
 
 class MapsPage extends StatelessWidget {
+  /// Page that displays a Map with current location and markers created in PlacesPage
   const MapsPage({Key? key}) : super(key: key);
 
   @override
@@ -33,6 +34,56 @@ class MapWidgetState extends State<MapWidget> {
   WeatherFactory wf = WeatherFactory("bf0be3637e549c705d8d431f81044e51");
   Temperature? _currentTemp;
 
+  void _onMapCreated(GoogleMapController controller) {
+    /// Moves the map to current location once is retrieved for the first time.
+    _initialLocationSubscription = location.onLocationChanged.listen((l) {
+      if (_firstLocation) {
+        _firstLocation = false;
+        controller.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(target: LatLng(l.latitude!, l.longitude!), zoom: 14),
+          ),
+        );
+      }
+    });
+    _controller.complete(controller);
+  }
+
+  getLocation() async {
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+
+    // Checks if location is enabled globally on device
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    // Checks if user gave location permissions to the app
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    // Updates current location and weather each time location is changed
+    _currentPosition = await location.getLocation();
+    _initialLatLng = LatLng(_currentPosition!.latitude!, _currentPosition!.longitude!);
+    _locationSubscription = location.onLocationChanged.listen((LocationData currentLocation) async {
+      _currentPosition = currentLocation;
+      Weather w = await wf.currentWeatherByLocation(_currentPosition!.latitude!, _currentPosition!.longitude!);
+      setState(() {
+        _initialLatLng = LatLng(_currentPosition!.latitude!, _currentPosition!.longitude!);
+        _currentTemp = w.temperature;
+      });
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -58,10 +109,7 @@ class MapWidgetState extends State<MapWidget> {
                   if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
                   return GoogleMap(
                     mapType: MapType.normal,
-                    initialCameraPosition: CameraPosition(
-                      target: _initialLatLng,
-                      zoom: 14,
-                    ),
+                    initialCameraPosition: CameraPosition(target: _initialLatLng, zoom: 14),
                     onMapCreated: _onMapCreated,
                     myLocationEnabled: true,
                     myLocationButtonEnabled: true,
@@ -94,61 +142,12 @@ class MapWidgetState extends State<MapWidget> {
               ),
               child: Text(
                 '${_currentTemp?.celsius?.toStringAsFixed(0) ?? '~'} ºC',
-                style: TextStyle(
-                  color: Theme.of(context).primaryColor,
-                  fontSize: 18.0
-                ),
+                style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 18.0),
               ),
             ),
           ),
         ],
       ),
     );
-  }
-
-  getLocation() async {
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
-
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        return;
-      }
-    }
-
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        return;
-      }
-    }
-
-    _currentPosition = await location.getLocation();
-    _initialLatLng = LatLng(_currentPosition!.latitude!, _currentPosition!.longitude!);
-    _locationSubscription = location.onLocationChanged.listen((LocationData currentLocation) async {
-      _currentPosition = currentLocation;
-      Weather w = await wf.currentWeatherByLocation(_currentPosition!.latitude!, _currentPosition!.longitude!);
-      setState(() {
-        _initialLatLng = LatLng(_currentPosition!.latitude!, _currentPosition!.longitude!);
-        _currentTemp = w.temperature;
-      });
-    });
-  }
-
-  void _onMapCreated(GoogleMapController controller) {
-    _initialLocationSubscription = location.onLocationChanged.listen((l) {
-      if (_firstLocation) {
-        _firstLocation = false;
-        controller.animateCamera(
-          CameraUpdate.newCameraPosition(
-            CameraPosition(target: LatLng(l.latitude!, l.longitude!), zoom: 14),
-          ),
-        );
-      }
-    });
-    _controller.complete(controller);
   }
 }
