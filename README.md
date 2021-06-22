@@ -8,6 +8,9 @@ Just a demo app with a map and custom markers.
     - Delete existing markers
 - Location permissions are required for the app to work properly
 
+## Requisites
+You will need to create a firebase project and substitute the google-services.json file under <Project>/android/app/src/
+
 ## Tech used
 - Flutter
 - Firebase firestore
